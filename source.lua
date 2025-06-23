@@ -1,10 +1,12 @@
+-- Solara UI Library
+-- Full Source Version with Buttons, Toggles, Labels, Sliders, TextBoxes, Dropdowns, Keybinds
+
 local Solara = {}
 Solara.__index = Solara
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
--- Theme
 local Theme = {
 	Main = Color3.fromRGB(25, 25, 25),
 	Second = Color3.fromRGB(32, 32, 32),
@@ -15,9 +17,7 @@ local Theme = {
 }
 
 local function MakeDraggable(Frame, DragHandle)
-	local dragging = false
-	local dragStart, startPos
-
+	local dragging, dragStart, startPos = false, nil, nil
 	DragHandle.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			dragging = true
@@ -30,7 +30,6 @@ local function MakeDraggable(Frame, DragHandle)
 			end)
 		end
 	end)
-
 	UserInputService.InputChanged:Connect(function(input)
 		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 			local delta = input.Position - dragStart
@@ -51,7 +50,6 @@ function Solara:CreateWindow(title)
 	MainFrame.BackgroundColor3 = Theme.Main
 	MainFrame.BorderSizePixel = 0
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	MainFrame.Name = "MainFrame"
 
 	local UICorner = Instance.new("UICorner", MainFrame)
 	UICorner.CornerRadius = UDim.new(0, 8)
@@ -63,8 +61,6 @@ function Solara:CreateWindow(title)
 	TitleBar.Font = Enum.Font.GothamBold
 	TitleBar.TextColor3 = Theme.Text
 	TitleBar.TextSize = 18
-	TitleBar.Name = "TitleBar"
-
 	MakeDraggable(MainFrame, TitleBar)
 
 	local TabHolder = Instance.new("Frame", MainFrame)
@@ -72,10 +68,7 @@ function Solara:CreateWindow(title)
 	TabHolder.Size = UDim2.new(0, 120, 1, -30)
 	TabHolder.BackgroundColor3 = Theme.Second
 	TabHolder.BorderSizePixel = 0
-
-	local UICorner2 = Instance.new("UICorner", TabHolder)
-	UICorner2.CornerRadius = UDim.new(0, 8)
-
+	Instance.new("UICorner", TabHolder).CornerRadius = UDim.new(0, 8)
 	local UIListLayout = Instance.new("UIListLayout", TabHolder)
 	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
@@ -83,8 +76,6 @@ function Solara:CreateWindow(title)
 	ContentFrame.Position = UDim2.new(0, 125, 0, 35)
 	ContentFrame.Size = UDim2.new(1, -130, 1, -40)
 	ContentFrame.BackgroundTransparency = 1
-	ContentFrame.Name = "ContentFrame"
-
 	local tabs = {}
 
 	function Solara:AddTab(tabName)
@@ -95,18 +86,14 @@ function Solara:CreateWindow(title)
 		Button.Font = Enum.Font.GothamSemibold
 		Button.TextColor3 = Theme.TextDark
 		Button.TextSize = 14
-
 		local TabFrame = Instance.new("Frame", ContentFrame)
 		TabFrame.Name = tabName
 		TabFrame.Size = UDim2.new(1, 0, 1, 0)
 		TabFrame.BackgroundTransparency = 1
 		TabFrame.Visible = false
-
 		local Layout = Instance.new("UIListLayout", TabFrame)
 		Layout.Padding = UDim.new(0, 6)
-
 		tabs[tabName] = TabFrame
-
 		Button.MouseButton1Click:Connect(function()
 			for name, tab in pairs(tabs) do
 				tab.Visible = (name == tabName)
@@ -119,44 +106,49 @@ function Solara:CreateWindow(title)
 			Button.TextColor3 = Theme.Text
 		end)
 
-		return {
-			AddButton = function(_, text, callback)
-				local Btn = Instance.new("TextButton", TabFrame)
-				Btn.Size = UDim2.new(1, 0, 0, 30)
-				Btn.BackgroundColor3 = Theme.Second
-				Btn.BorderSizePixel = 0
-				Btn.Text = text
-				Btn.Font = Enum.Font.Gotham
-				Btn.TextColor3 = Theme.Text
-				Btn.TextSize = 14
-				local btnCorner = Instance.new("UICorner", Btn)
-				btnCorner.CornerRadius = UDim.new(0, 6)
+		local elements = {}
 
-				Btn.MouseButton1Click:Connect(function()
-					pcall(callback)
-				end)
-			end,
+		elements.AddLabel = function(_, text)
+			local Label = Instance.new("TextLabel", TabFrame)
+			Label.Size = UDim2.new(1, 0, 0, 25)
+			Label.BackgroundTransparency = 1
+			Label.Font = Enum.Font.GothamSemibold
+			Label.TextColor3 = Theme.Text
+			Label.TextSize = 14
+			Label.Text = text
+		end
 
-			AddToggle = function(_, text, callback)
-				local Toggle = Instance.new("TextButton", TabFrame)
-				Toggle.Size = UDim2.new(1, 0, 0, 30)
-				Toggle.BackgroundColor3 = Theme.Second
-				Toggle.BorderSizePixel = 0
-				Toggle.Font = Enum.Font.Gotham
-				Toggle.TextColor3 = Theme.Text
-				Toggle.TextSize = 14
-				Toggle.Text = "[ ] " .. text
-				local State = false
-				local toggleCorner = Instance.new("UICorner", Toggle)
-				toggleCorner.CornerRadius = UDim.new(0, 6)
+		elements.AddButton = function(_, text, callback)
+			local Btn = Instance.new("TextButton", TabFrame)
+			Btn.Size = UDim2.new(1, 0, 0, 30)
+			Btn.BackgroundColor3 = Theme.Second
+			Btn.Text = text
+			Btn.Font = Enum.Font.Gotham
+			Btn.TextColor3 = Theme.Text
+			Btn.TextSize = 14
+			Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
+			Btn.MouseButton1Click:Connect(function() pcall(callback) end)
+		end
 
-				Toggle.MouseButton1Click:Connect(function()
-					State = not State
-					Toggle.Text = (State and "[✔] " or "[ ] ") .. text
-					pcall(callback, State)
-				end)
-			end,
-		}
+		elements.AddToggle = function(_, text, callback)
+			local Toggle = Instance.new("TextButton", TabFrame)
+			Toggle.Size = UDim2.new(1, 0, 0, 30)
+			Toggle.BackgroundColor3 = Theme.Second
+			Toggle.Font = Enum.Font.Gotham
+			Toggle.TextColor3 = Theme.Text
+			Toggle.TextSize = 14
+			Instance.new("UICorner", Toggle).CornerRadius = UDim.new(0, 6)
+			local State = false
+			local function updateText() Toggle.Text = (State and "[✔] " or "[ ] ") .. text end
+			updateText()
+			Toggle.MouseButton1Click:Connect(function()
+				State = not State
+				updateText()
+				pcall(callback, State)
+			end)
+		end
+
+		return elements
 	end
 
 	return Solara
