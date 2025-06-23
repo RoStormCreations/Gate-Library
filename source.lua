@@ -1,7 +1,7 @@
--- Solara UI Library
+-- Gate UI Library
 -- Full Source Version with Buttons, Toggles, Labels, Sliders, TextBoxes, Dropdowns, Keybinds
 
-local Solara = {}
+local Gate = {}
 Solara.__index = Solara
 
 local TweenService = game:GetService("TweenService")
@@ -41,7 +41,7 @@ end
 
 function Solara:CreateWindow(title)
 	local ScreenGui = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"))
-	ScreenGui.Name = "SolaraUI"
+	ScreenGui.Name = "GateUI"
 	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 	local MainFrame = Instance.new("Frame", ScreenGui)
